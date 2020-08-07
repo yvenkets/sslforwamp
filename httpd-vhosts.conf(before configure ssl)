@@ -1,0 +1,27 @@
+# Virtual Hosts
+#
+<VirtualHost *:80>
+  ServerName localhost
+  ServerAlias localhost
+  DocumentRoot "${INSTALL_DIR}/www"
+  Alias /.well-known "c:/wamp64/www/.well-known"
+  <Directory "${INSTALL_DIR}/www/">
+    Options +Indexes +Includes +FollowSymLinks +MultiViews
+    AllowOverride All
+    Require local
+  </Directory>
+</VirtualHost>
+
+
+#
+<VirtualHost *:80>
+	ServerName www.lok.ecare.com
+	ServerAlias lok.ecare.com
+	DocumentRoot "c:/wamp64/www/ecare"
+	Alias /.well-known "c:/wamp64/www/ecare/.well-known"
+	<Directory  "c:/wamp64/www/ecare/">
+		Options +Indexes +Includes +FollowSymLinks +MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+</VirtualHost>
