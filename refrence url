@@ -1,0 +1,92 @@
+https://certbot.eff.org/lets-encrypt/windows-other.html#:~:text=Certificates%20are%20located%20in%20C,used%20on%20the%20certonly%20command).
+
+step 1 download and install software
+
+https://www.openssl.org/
+http://slproweb.com/download/Win64OpenSSL-1_0_2L.exe
+
+https://github.com/Lone-Coder/letsencrypt-win-simple/releases
+
+step 2 install the software
+
+
+step 3 
+enable ssl_module in apache
+
+step 4
+modify your httpd.conf to listen in the port 80 and 443
+
+Listen 0.0.0.0:80
+Listen *:80
+Listen 0.0.0.0:443
+Listen *:443
+
+step 5 create a virtual host in port 80 with an alias for the .well-known directory, this is for the httpd-vhosts.conf file 
+
+
+<VirtualHost *:80>
+	ServerName www.replace-with-domainname.com
+	ServerAlias server replace-with-domainname.com
+	DocumentRoot "c:/wamp64/www/replace-with-domainname"
+	
+	# Puts here, before Directory directive :) 
+        Alias /.well-known "c:/wamp64/www/replace-with-domainname/.well-known"
+	
+	<Directory  "c:/wamp64/www/replace-with-domainname/">
+		Options +Indexes +Includes +FollowSymLinks +MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+
+</VirtualHost>
+
+step 6 create test certificate
+
+C:\letsencrypt-win-simple\letsencrypt.exe --manualhost www.replace-with-domainname.com --webroot "C:/wamp64/www/replace-with-domainname" --test
+
+sept 7 create the real certificate
+
+C:\letsencrypt-win-simple\letsencrypt.exe --manualhost www.replace-with-domainname.com --webroot "C:/wamp64/www/replace-with-domainname" 
+
+step 8 change your virtal host config to have 2 virtual host for your domain, this is for the httpd-vhosts.conf file , remember to remove the orginal virtual host you 
+created for this domain
+
+#replace-with-domainname start
+
+<VirtualHost *:80>
+    ServerName www.replace-with-domainname.com
+	#ServerAlias server replace-with-domainname.com
+    RewriteEngine On
+    # Redirect to the HTTPS site
+    RewriteCond %{HTTPS} off
+    RewriteRule ^/?(.*)$ https://www.replace-with-domainname.com/$1 [NE,L,R=301]
+</VirtualHost>
+
+<VirtualHost *:443>
+	ServerName www.replace-with-domainname.com
+	ServerAlias server replace-with-domainname.com
+	DocumentRoot "c:/wamp64/www/replace-with-domainname"
+	
+	RewriteEngine On
+    # Redirect to the correct domain name
+    RewriteCond %{HTTP_HOST} !^www.replace-with-domainname.com$ [NC]
+    RewriteRule ^/?(.*)$ https://www.replace-with-domainname.com/$1 [NE,L,R=301]
+	
+	# Puts here, before Directory directive :) 
+    Alias /.well-known "c:/wamp64/www/replace-with-domainname/.well-known"
+	
+	<Directory  "c:/wamp64/www/replace-with-domainname/">
+		Options +Indexes +Includes +FollowSymLinks +MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+	
+	SSLEngine on
+    SSLCertificateFile "C:/Users/Administrator/AppData/Roaming/letsencrypt-win-simple/httpsacme-v01.api.letsencrypt.org/www.replace-with-domainname.com-crt.pem"
+    SSLCertificateKeyFile "C:/Users/Administrator/AppData/Roaming/letsencrypt-win-simple/httpsacme-v01.api.letsencrypt.org/www.replace-with-domainname.com-key.pem"
+    SSLCertificateChainFile "C:/Users/Administrator/AppData/Roaming/letsencrypt-win-simple/httpsacme-v01.api.letsencrypt.org/ca-"replace with your ca cert"-crt.pem"	
+</VirtualHost>
+
+#replace-with-domainname end
+
+restart apache and you are done
