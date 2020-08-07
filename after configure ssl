@@ -1,0 +1,47 @@
+# Virtual Hosts
+#
+<VirtualHost *:8080>
+  ServerName localhost
+  ServerAlias localhost
+  DocumentRoot "${INSTALL_DIR}/www"
+  Alias /.well-known "c:/wamp64/www/.well-known"
+  <Directory "${INSTALL_DIR}/www/">
+    Options +Indexes +Includes +FollowSymLinks +MultiViews
+    AllowOverride All
+    Require  all granted
+  </Directory>
+</VirtualHost>
+
+
+#
+<VirtualHost *:80>
+	ServerName www.lok.ecare.com
+	#ServerAlias lok.ecare.com
+	RewriteEngine On
+    # Redirect to the HTTPS site
+    RewriteCond %{HTTPS} off
+    RewriteRule ^/?(.*)$ https://lok.ecare.com/$1 [NE,L,R=301]
+</VirtualHost>
+
+<VirtualHost *:443>
+	ServerName www.lok.ecare.com
+	ServerAlias lok.ecare.com
+	DocumentRoot "c:/wamp64/www/ecare"
+	
+	RewriteEngine On
+    # Redirect to the correct domain name
+    RewriteCond %{HTTP_HOST} !^www.lok.ecare.com$ [NC]
+    RewriteRule ^/?(.*)$ https://www.lok.ecare.com/$1 [NE,L,R=301]
+	
+	Alias /.well-known "c:/wamp64/www/ecare/.well-known"
+
+	<Directory  "c:/wamp64/www/ecare/">
+		Options +Indexes +Includes +FollowSymLinks +MultiViews
+		AllowOverride All
+		Require all granted
+	</Directory>
+	SSLEngine on
+    SSLCertificateFile "C:\Certbot\live\lok.ecare.com\cert.pem"
+    SSLCertificateKeyFile "C:\Certbot\live\lok.ecare.com\privkey.pem"
+    SSLCertificateChainFile "C:\Certbot\live\lok.ecare.com\fullchain.pem"	
+</VirtualHost>
